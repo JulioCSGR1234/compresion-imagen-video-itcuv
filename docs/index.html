@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>¿Qué tarda más en comprimirse: una imagen o un video? · UV FIEC</title>
+<meta name="description" content="Investigación aplicada de estudiantes de la Universidad Veracruzana: medición experimental del tiempo de compresión de archivos de imagen y video.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&family=Source+Sans+3:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --azul:#18529D; --azul-osc:#0E3566; --azul-claro:#E6EEF8; --azul-med:#2F6FC4;
+  --verde:#28AD56; --verde-osc:#1C8A43; --verde-claro:#E4F5EA;
+  --naranja:#EB6834; --amarillo:#EDA100; --aqua:#1BAF7A;
+  --ink:#16213A; --ink-2:#4A5568; --ink-3:#7A869A;
+  --bg:#FFFFFF; --bg-2:#F4F7FB; --line:#DCE3EE;
+  --radius:14px; --shadow:0 10px 30px rgba(24,82,157,.10);
+  --ff-head:'Montserrat',system-ui,sans-serif; --ff-body:'Source Sans 3',system-ui,sans-serif; --ff-mono:'JetBrains Mono',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+[hidden]{display:none!important}
+html{scroll-behavior:smooth;scroll-padding-top:76px}
+body{font-family:var(--ff-body);color:var(--ink);background:var(--bg);line-height:1.6;font-size:17px;overflow-x:hidden}
+h1,h2,h3,h4{font-family:var(--ff-head);line-height:1.2;color:var(--azul-osc)}
+p{max-width:70ch}
+a{color:var(--azul)}
+.wrap{width:min(1120px,92vw);margin:0 auto}
+section{padding:96px 0}
+section:nth-of-type(even){background:var(--bg-2)}
+.kicker{font-family:var(--ff-head);font-weight:700;font-size:.78rem;letter-spacing:.18em;text-transform:uppercase;color:var(--verde-osc);display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.kicker::before{content:"";width:28px;height:3px;background:var(--verde);border-radius:2px}
+h2.title{font-size:clamp(1.7rem,3.4vw,2.5rem);font-weight:800;margin-bottom:18px;max-width:22ch}
+.lead{font-size:1.18rem;color:var(--ink-2);max-width:62ch}
+
+/* progress bar */
+#progress{position:fixed;top:0;left:0;height:4px;width:0;background:linear-gradient(90deg,var(--verde),var(--aqua));z-index:1001;transition:width .1s linear}
+
+/* nav */
+nav{position:fixed;top:0;left:0;right:0;z-index:1000;background:rgba(24,82,157,.92);backdrop-filter:blur(10px);color:#fff;transition:box-shadow .3s}
+nav.scrolled{box-shadow:0 4px 20px rgba(0,0,0,.25)}
+nav .wrap{display:flex;align-items:center;justify-content:space-between;height:68px;gap:20px}
+.brand{display:flex;align-items:center;gap:12px;text-decoration:none;color:#fff}
+.brand img{height:44px;width:auto;background:#fff;border-radius:8px;padding:4px}
+.brand b{font-family:var(--ff-head);font-size:.95rem;display:block;line-height:1.1}
+.brand small{font-size:.75rem;opacity:.85;display:block}
+.links{display:flex;gap:4px;list-style:none}
+.links a{color:#fff;text-decoration:none;font-family:var(--ff-head);font-weight:600;font-size:.82rem;padding:8px 12px;border-radius:8px;transition:background .2s;position:relative}
+.links a:hover,.links a.active{background:rgba(255,255,255,.14)}
+.burger{display:none;background:none;border:0;color:#fff;font-size:1.6rem;cursor:pointer}
+@media(max-width:900px){
+  .links{display:none;position:absolute;top:68px;left:0;right:0;background:var(--azul-osc);flex-direction:column;padding:10px}
+  .links.open{display:flex}
+  .burger{display:block}
+  .brand small{display:none}
+}
+
+/* hero */
+#hero{position:relative;min-height:100vh;display:grid;place-items:center;background:radial-gradient(1200px 600px at 80% -10%,#2F6FC4 0%,transparent 60%),radial-gradient(900px 500px at -10% 110%,#1C8A43 0%,transparent 55%),linear-gradient(160deg,#0E3566 0%,#18529D 55%,#0B2A52 100%);color:#fff;overflow:hidden;padding:120px 0 80px}
+#hero canvas{position:absolute;inset:0;width:100%;height:100%;opacity:.55}
+.hero-grid{position:relative;display:grid;grid-template-columns:1.25fr 1fr;gap:48px;align-items:center}
+@media(max-width:900px){.hero-grid{grid-template-columns:1fr}.scroll-hint{display:none}}
+.hero-tag{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);padding:6px 14px;border-radius:999px;font-size:.8rem;font-family:var(--ff-head);font-weight:600;letter-spacing:.06em;margin-bottom:22px}
+.hero-tag i{width:8px;height:8px;border-radius:50%;background:var(--verde);box-shadow:0 0 0 0 rgba(40,173,86,.7);animation:pulse 2s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(40,173,86,.7)}70%{box-shadow:0 0 0 10px rgba(40,173,86,0)}100%{box-shadow:0 0 0 0 rgba(40,173,86,0)}}
+#hero h1{color:#fff;font-size:clamp(2rem,4.6vw,3.6rem);font-weight:800;letter-spacing:-.01em;max-width:16ch}
+#hero h1 em{font-style:normal;color:#7BE2A1}
+#hero .sub{margin-top:22px;font-size:1.2rem;max-width:52ch;color:rgba(255,255,255,.85)}
+#hero .cta{margin-top:36px;display:flex;gap:14px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:10px;padding:14px 24px;border-radius:12px;font-family:var(--ff-head);font-weight:700;font-size:.95rem;text-decoration:none;transition:transform .2s,box-shadow .2s,background .2s;cursor:pointer;border:0}
+.btn:hover{transform:translateY(-2px)}
+.btn-green{background:var(--verde);color:#fff;box-shadow:0 8px 24px rgba(40,173,86,.35)}
+.btn-green:hover{background:var(--verde-osc)}
+.btn-ghost{background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.35)}
+.btn-ghost:hover{background:rgba(255,255,255,.2)}
+.btn-blue{background:var(--azul);color:#fff;box-shadow:0 8px 24px rgba(24,82,157,.3)}
+.btn-blue:hover{background:var(--azul-osc)}
+
+/* hero visual: race */
+.race{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);border-radius:20px;padding:26px;backdrop-filter:blur(6px)}
+.race h3{color:#fff;font-size:.85rem;letter-spacing:.12em;text-transform:uppercase;opacity:.85;margin-bottom:18px}
+.lane{display:grid;grid-template-columns:92px 1fr 64px;align-items:center;gap:12px;margin:12px 0}
+.lane .name{font-family:var(--ff-mono);font-size:.9rem}
+.lane .track{height:14px;background:rgba(255,255,255,.12);border-radius:8px;overflow:hidden;position:relative}
+.lane .fill{height:100%;width:0;border-radius:8px;transition:width 2.2s cubic-bezier(.2,.8,.2,1)}
+.lane .t{font-family:var(--ff-mono);font-size:.85rem;text-align:right;opacity:.9}
+.lane.img .fill{background:linear-gradient(90deg,#4EA1FF,#9CCBFF)}
+.lane.vid .fill{background:linear-gradient(90deg,#FF8A5B,#FFC29E)}
+.race .note{font-size:.85rem;opacity:.8;margin-top:14px}
+.scroll-hint{position:absolute;bottom:26px;left:50%;transform:translateX(-50%);font-size:.75rem;letter-spacing:.2em;text-transform:uppercase;opacity:.7;display:flex;flex-direction:column;align-items:center;gap:8px}
+.scroll-hint span{width:1px;height:38px;background:linear-gradient(#fff,transparent);animation:drop 1.6s infinite}
+@keyframes drop{0%{transform:scaleY(0);transform-origin:top}50%{transform:scaleY(1);transform-origin:top}51%{transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
+
+/* reveal */
+.rv{opacity:0;transform:translateY(28px);transition:opacity .8s ease,transform .8s cubic-bezier(.2,.8,.2,1)}
+.rv.in{opacity:1;transform:none}
+.rv.d1{transition-delay:.12s}.rv.d2{transition-delay:.24s}.rv.d3{transition-delay:.36s}.rv.d4{transition-delay:.48s}
+
+/* kpis */
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-top:40px}
+@media(max-width:900px){.kpis{grid-template-columns:repeat(2,1fr)}}
+.kpi{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:22px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+.kpi::after{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--verde)}
+.kpi b{display:block;font-family:var(--ff-head);font-size:clamp(1.45rem,5.2vw,2.2rem);font-weight:800;color:var(--azul);line-height:1}
+.kpi span{display:block;font-size:.88rem;color:var(--ink-2);margin-top:8px}
+
+/* two col */
+.two{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:start}
+@media(max-width:900px){.two{grid-template-columns:1fr}}
+.card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:28px;box-shadow:var(--shadow)}
+.card h3{font-size:1.1rem;margin-bottom:10px}
+.quote{border-left:5px solid var(--verde);background:var(--verde-claro);padding:22px 26px;border-radius:0 var(--radius) var(--radius) 0;font-size:1.25rem;font-family:var(--ff-head);font-weight:600;color:var(--azul-osc);margin:28px 0}
+.hyp{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:24px}
+@media(max-width:700px){.hyp{grid-template-columns:1fr}}
+.hyp .card{border-top:5px solid var(--line)}
+.hyp .card.alt{border-top-color:var(--verde)}
+.hyp .card.nul{border-top-color:var(--ink-3)}
+.hyp small{font-family:var(--ff-head);font-weight:700;letter-spacing:.12em;text-transform:uppercase;font-size:.72rem;color:var(--ink-3)}
+
+/* steps */
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-top:40px;counter-reset:s}
+@media(max-width:900px){.steps{grid-template-columns:1fr 1fr}}
+@media(max-width:560px){.steps{grid-template-columns:1fr}}
+.step{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:26px 22px 22px;position:relative;transition:transform .25s,box-shadow .25s}
+.step:hover{transform:translateY(-6px);box-shadow:var(--shadow)}
+.step::before{counter-increment:s;content:counter(s,decimal-leading-zero);font-family:var(--ff-head);font-weight:800;font-size:2.4rem;color:var(--azul-claro);position:absolute;right:16px;top:8px;line-height:1}
+.step .ico{width:46px;height:46px;border-radius:12px;background:var(--azul-claro);display:grid;place-items:center;margin-bottom:14px}
+.step .ico svg{width:24px;height:24px;stroke:var(--azul);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.step h3{font-size:1rem;margin-bottom:8px}
+.step p{font-size:.95rem;color:var(--ink-2)}
+.spec{margin-top:36px;display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+.spec div{background:#fff;border:1px solid var(--line);border-radius:10px;padding:14px 16px}
+.spec small{display:block;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);font-family:var(--ff-head);font-weight:700}
+.spec b{font-family:var(--ff-mono);font-weight:500;font-size:.92rem;color:var(--ink)}
+
+/* files */
+.files{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:30px}
+@media(max-width:900px){.files{grid-template-columns:1fr 1fr}}
+.file{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:20px;text-align:center}
+.file .ext{font-family:var(--ff-mono);font-size:1.3rem;font-weight:500;color:#fff;display:inline-block;padding:6px 14px;border-radius:8px}
+.file.img .ext{background:var(--azul)}.file.vid .ext{background:var(--naranja)}
+.file p{font-size:.9rem;color:var(--ink-2);margin:10px auto 0}
+.file b{display:block;margin-top:6px;font-size:.85rem}
+
+/* charts */
+.chart-card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:26px;box-shadow:var(--shadow);margin-top:30px}
+.chart-card h3{font-size:1.1rem;margin-bottom:4px}
+.chart-card .sub{font-size:.92rem;color:var(--ink-2);margin-bottom:14px}
+.chart-card svg{width:100%;height:auto;display:block;overflow:visible}
+.chart-card .cap{font-size:.9rem;color:var(--ink-2);margin-top:14px;border-top:1px dashed var(--line);padding-top:12px}
+.legend{display:flex;gap:18px;flex-wrap:wrap;font-size:.85rem;color:var(--ink-2);margin-bottom:10px}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-1px;margin-right:6px}
+.tip{position:fixed;pointer-events:none;background:var(--ink);color:#fff;padding:8px 12px;border-radius:8px;font-size:.82rem;font-family:var(--ff-mono);opacity:0;transform:translate(-50%,-120%);transition:opacity .15s;z-index:999;white-space:nowrap}
+.tip.on{opacity:1}
+.bar{transform-origin:bottom;transform:scaleY(0);transition:transform 1.1s cubic-bezier(.2,.8,.2,1)}
+.in .bar{transform:scaleY(1)}
+.line-path{stroke-dasharray:2000;stroke-dashoffset:2000;transition:stroke-dashoffset 2.4s ease}
+.in .line-path{stroke-dashoffset:0}
+.pt{opacity:0;transition:opacity .4s}
+.in .pt{opacity:1}
+.axis text{font-family:var(--ff-mono);font-size:11px;fill:var(--ink-3)}
+.axis line,.axis path{stroke:var(--line)}
+.grid line{stroke:#EEF2F7}
+.lbl{font-family:var(--ff-mono);font-size:12px;fill:var(--ink)}
+
+table.res{width:100%;border-collapse:collapse;margin-top:26px;background:#fff;border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);font-size:.95rem}
+table.res th{background:var(--azul);color:#fff;font-family:var(--ff-head);font-weight:600;font-size:.82rem;letter-spacing:.04em;padding:14px 12px;text-align:left}
+table.res td{padding:12px;border-bottom:1px solid var(--line);font-family:var(--ff-mono);font-size:.88rem}
+table.res td:first-child{font-family:var(--ff-body);font-weight:600}
+table.res tr:last-child td{border-bottom:0}
+table.res tr:hover td{background:var(--azul-claro)}
+.pill{display:inline-block;padding:2px 10px;border-radius:999px;font-size:.75rem;font-family:var(--ff-head);font-weight:700;color:#fff}
+.pill.img{background:var(--azul)}.pill.vid{background:var(--naranja)}
+.tbl-wrap{overflow-x:auto}
+
+.finding{margin-top:40px;background:linear-gradient(135deg,var(--azul-osc),var(--azul));color:#fff;border-radius:20px;padding:40px;display:grid;grid-template-columns:auto 1fr;gap:28px;align-items:center;position:relative;overflow:hidden}
+.finding::after{content:"";position:absolute;right:-60px;top:-60px;width:260px;height:260px;border-radius:50%;background:rgba(40,173,86,.25)}
+.finding .big{font-family:var(--ff-head);font-size:3.4rem;font-weight:800;line-height:1;color:#7BE2A1}
+.finding .big small{display:block;font-size:.8rem;letter-spacing:.14em;text-transform:uppercase;color:#fff;opacity:.8;font-weight:700;margin-top:6px}
+.finding h3{color:#fff;font-size:1.35rem;margin-bottom:10px}
+.finding p{color:rgba(255,255,255,.9);max-width:60ch;position:relative}
+@media(max-width:700px){.finding{grid-template-columns:1fr;padding:28px}}
+
+/* verdict */
+.verdict{display:grid;grid-template-columns:1.1fr .9fr;gap:30px;align-items:stretch;margin-top:30px}
+@media(max-width:900px){.verdict{grid-template-columns:1fr}}
+.stamp{background:#fff;border:2px solid var(--verde);border-radius:20px;padding:34px;text-align:center;position:relative;box-shadow:var(--shadow)}
+.stamp .check{width:84px;height:84px;border-radius:50%;background:var(--verde-claro);display:grid;place-items:center;margin:0 auto 14px}
+.stamp .check svg{width:44px;height:44px;stroke:var(--verde);fill:none;stroke-width:3.5;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:60;stroke-dashoffset:60;transition:stroke-dashoffset 1s ease .3s}
+.in .stamp .check svg{stroke-dashoffset:0}
+.stamp .v{font-family:var(--ff-head);font-size:2rem;font-weight:800;color:var(--verde-osc)}
+.stamp .f{font-family:var(--ff-mono);font-size:.9rem;color:var(--ink-2);margin-top:12px;display:grid;gap:4px}
+.stamp .f b{color:var(--azul);font-weight:500}
+.meter{margin-top:18px}
+.meter .bar-p{height:10px;background:var(--line);border-radius:6px;overflow:hidden;position:relative}
+.meter .bar-p i{position:absolute;left:0;top:0;bottom:0;width:5%;background:var(--ink-3)}
+.meter .bar-p b{position:absolute;left:0;top:-4px;width:3px;height:18px;background:var(--verde);border-radius:2px}
+.meter small{display:flex;justify-content:space-between;font-size:.72rem;color:var(--ink-3);margin-top:6px;font-family:var(--ff-mono)}
+
+/* conclusions */
+.concl{display:grid;grid-template-columns:repeat(2,1fr);gap:18px;margin-top:36px}
+@media(max-width:800px){.concl{grid-template-columns:1fr}}
+.concl .card{display:grid;grid-template-columns:56px 1fr;gap:16px;align-items:start}
+.concl .ico{width:56px;height:56px;border-radius:14px;background:var(--azul-claro);display:grid;place-items:center}
+.concl .ico svg{width:28px;height:28px;stroke:var(--azul);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.concl .card.g .ico{background:var(--verde-claro)}.concl .card.g .ico svg{stroke:var(--verde-osc)}
+.concl p{font-size:.95rem;color:var(--ink-2)}
+.tips{margin-top:36px;background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:28px}
+.tips h3{margin-bottom:14px}
+.tips ul{list-style:none;display:grid;gap:12px}
+.tips li{display:grid;grid-template-columns:28px 1fr;gap:12px;align-items:start;font-size:.98rem}
+.tips li i{width:28px;height:28px;border-radius:50%;background:var(--verde);color:#fff;display:grid;place-items:center;font-style:normal;font-family:var(--ff-head);font-weight:800;font-size:.8rem}
+
+/* team */
+.team{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:36px}
+@media(max-width:900px){.team{grid-template-columns:1fr}}
+.member{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:28px;text-align:center;box-shadow:var(--shadow);transition:transform .25s}
+.member:hover{transform:translateY(-6px)}
+.avatar{width:84px;height:84px;border-radius:50%;margin:0 auto 14px;display:grid;place-items:center;font-family:var(--ff-head);font-weight:800;font-size:1.6rem;color:#fff;background:linear-gradient(135deg,var(--azul),var(--verde))}
+.member h3{font-size:1.05rem}
+.member .mat{font-family:var(--ff-mono);font-size:.85rem;color:var(--ink-3);margin-top:4px}
+.member .role{display:inline-block;margin-top:12px;font-size:.78rem;font-family:var(--ff-head);font-weight:700;color:var(--azul);background:var(--azul-claro);padding:4px 12px;border-radius:999px}
+.facil{margin-top:24px;background:var(--azul-osc);color:#fff;border-radius:var(--radius);padding:24px 28px;display:flex;align-items:center;gap:20px;flex-wrap:wrap}
+.facil .avatar{margin:0;width:64px;height:64px;font-size:1.2rem;background:linear-gradient(135deg,var(--verde),var(--aqua))}
+.facil small{display:block;font-size:.74rem;letter-spacing:.14em;text-transform:uppercase;opacity:.8;font-family:var(--ff-head);font-weight:700}
+.facil b{font-family:var(--ff-head);font-size:1.1rem}
+.facil span{opacity:.85;font-size:.92rem}
+
+/* downloads */
+.dl{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:36px}
+@media(max-width:800px){.dl{grid-template-columns:1fr}}
+.dl a{display:grid;grid-template-columns:64px 1fr auto;gap:18px;align-items:center;background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:22px;text-decoration:none;color:var(--ink);box-shadow:var(--shadow);transition:transform .25s,border-color .25s}
+.dl a:hover{transform:translateY(-4px);border-color:var(--verde)}
+.dl .ic{width:64px;height:64px;border-radius:14px;display:grid;place-items:center;font-family:var(--ff-head);font-weight:800;color:#fff;font-size:.9rem}
+.dl .ic.pdf{background:#C62828}.dl .ic.xls{background:#1E7B45}
+.dl b{display:block;font-family:var(--ff-head);font-size:1.02rem}
+.dl span{font-size:.88rem;color:var(--ink-2)}
+.dl .arrow{font-size:1.4rem;color:var(--verde)}
+.ia{margin-top:24px;font-size:.9rem;color:var(--ink-3);display:flex;gap:10px;align-items:center}
+
+/* footer */
+footer{background:var(--azul-osc);color:#fff;padding:0 0 40px}
+footer .pleca{height:46px;background:#fff url(data:image/png;base64,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) repeat-x center/auto 46px}
+footer .wrap{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:30px;padding-top:40px}
+@media(max-width:800px){footer .wrap{grid-template-columns:1fr}}
+footer h4{color:#fff;font-size:.8rem;letter-spacing:.14em;text-transform:uppercase;margin-bottom:12px;opacity:.9}
+footer p,footer li{font-size:.92rem;opacity:.85}
+footer ul{list-style:none}
+footer .lema{font-family:var(--ff-head);font-style:italic;font-weight:600;color:#7BE2A1;margin-top:12px}
+footer .copy{max-width:none;margin-top:34px;border-top:1px solid rgba(255,255,255,.15);padding-top:18px;font-size:.8rem;opacity:.7;text-align:center}
+@media(max-width:700px){.chart-card{overflow-x:auto;-webkit-overflow-scrolling:touch}.chart-card svg{min-width:640px}.chart-card .cap,.chart-card .sub,.chart-card h3{min-width:0}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.rv{opacity:1;transform:none}.bar{transform:none}.line-path{stroke-dashoffset:0}}
+</style>
+</head>
+<body>
+<div id="progress"></div>
+<div class="tip" id="tip"></div>
+
+<nav id="nav">
+  <div class="wrap">
+    <a class="brand" href="#hero">
+      <img src="data:image/png;base64,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" alt="Universidad Veracruzana">
+      <span><b>Universidad Veracruzana</b><small>FIEC · Región Poza Rica-Tuxpan</small></span>
+    </a>
+    <button class="burger" id="burger" aria-label="Menú">☰</button>
+    <ul class="links" id="links">
+      <li><a href="#problema">El problema</a></li>
+      <li><a href="#metodo">Cómo lo hicimos</a></li>
+      <li><a href="#resultados">Resultados</a></li>
+      <li><a href="#hipotesis">Hipótesis</a></li>
+      <li><a href="#conclusiones">Conclusiones</a></li>
+      <li><a href="#equipo">Equipo</a></li>
+      <li><a href="#descargas">Descargas</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- HERO -->
+<header id="hero">
+  <canvas id="net"></canvas>
+  <div class="wrap hero-grid">
+    <div>
+      <div class="hero-tag"><i></i> INVESTIGACIÓN APLICADA · ITC · NOVIEMBRE 2026</div>
+      <h1>¿Qué tarda más en comprimirse: <em>una imagen</em> o <em>un video</em>?</h1>
+      <p class="sub">Lo medimos 80 veces con cronómetro de computadora. La respuesta fue sí… y también no. Esta es la historia de un experimento que terminó contradiciendo la intuición.</p>
+      <div class="cta">
+        <a class="btn btn-green" href="#resultados">Ver los resultados ↓</a>
+        <a class="btn btn-ghost" href="#descargas">Descargar informe</a>
+        <a class="btn btn-ghost" data-repo hidden href="#" target="_blank" rel="noopener"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.7.5.5 5.7.5 12c0 5.1 3.3 9.4 7.9 10.9.6.1.8-.3.8-.6v-2c-3.2.7-3.9-1.5-3.9-1.5-.5-1.3-1.3-1.7-1.3-1.7-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.7-1.6-2.6-.3-5.3-1.3-5.3-5.7 0-1.3.5-2.3 1.2-3.1-.1-.3-.5-1.5.1-3.1 0 0 1-.3 3.3 1.2a11.4 11.4 0 016 0C17.3 4.6 18.3 5 18.3 5c.6 1.6.2 2.8.1 3.1.8.8 1.2 1.8 1.2 3.1 0 4.4-2.7 5.4-5.3 5.7.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6 4.6-1.5 7.9-5.8 7.9-10.9C23.5 5.7 18.3.5 12 .5z"/></svg>Código y datos</a>
+      </div>
+    </div>
+    <div class="race rv d2" id="race">
+      <h3>Tiempo promedio para comprimir ~40 MB</h3>
+      <div class="lane img"><span class="name">.bmp</span><div class="track"><div class="fill" data-w="29.5"></div></div><span class="t">10.07 s</span></div>
+      <div class="lane img"><span class="name">.jpg</span><div class="track"><div class="fill" data-w="26.3"></div></div><span class="t">8.98 s</span></div>
+      <div class="lane vid"><span class="name">.avi</span><div class="track"><div class="fill" data-w="100"></div></div><span class="t">34.14 s</span></div>
+      <div class="lane vid"><span class="name">.mp4</span><div class="track"><div class="fill" data-w="24.7"></div></div><span class="t">8.43 s</span></div>
+      <p class="note">Azul = imagen · Naranja = video. Promedio de 20 repeticiones por archivo.</p>
+    </div>
+  </div>
+  <div class="scroll-hint">Desliza<span></span></div>
+</header>
+
+<!-- RESUMEN -->
+<section id="resumen">
+  <div class="wrap">
+    <div class="kicker rv">En pocas palabras</div>
+    <h2 class="title rv d1">Un experimento con cronómetro, 7-Zip y mucha paciencia</h2>
+    <p class="lead rv d2">Cada día se generan millones de fotos y videos. Guardarlos o enviarlos suele implicar comprimirlos, y comprimir toma tiempo de procesador. Quisimos saber, con datos y no con suposiciones, si ese tiempo depende del tipo de archivo. Tomamos cuatro archivos de tamaño casi idéntico, dos imágenes y dos videos, los comprimimos veinte veces cada uno con el mismo programa y las mismas condiciones, y analizamos los resultados con estadística.</p>
+    <div class="kpis">
+      <div class="kpi rv"><b data-count="80">0</b><span>mediciones realizadas</span></div>
+      <div class="kpi rv d1"><b data-count="4">0</b><span>formatos de archivo probados</span></div>
+      <div class="kpi rv d2"><b>&lt;1.1 %</b><span>variación entre repeticiones: datos muy estables</span></div>
+      <div class="kpi rv d3"><b>p&nbsp;&lt;&nbsp;0.001</b><span>la diferencia encontrada no es casualidad</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- PROBLEMA -->
+<section id="problema">
+  <div class="wrap">
+    <div class="kicker rv">El problema</div>
+    <h2 class="title rv d1">Comprimir cuesta tiempo. ¿Cuánto, y de qué depende?</h2>
+    <div class="two">
+      <div>
+        <p class="rv d2">Cuando enviamos una carpeta de fotos por correo, respaldamos videos en la nube o empaquetamos archivos en un ZIP, la computadora ejecuta un algoritmo de compresión. Ese trabajo consume tiempo, y en una empresa que respalda miles de archivos cada noche, o en un servidor que atiende a muchos usuarios, los segundos se convierten en horas.</p>
+        <p class="rv d3" style="margin-top:14px">La intuición dice que un video, por ser "más pesado y complejo", debería tardar más que una imagen. Pero una intuición no es una evidencia. Nuestro objetivo fue medir, bajo condiciones controladas, si el tipo de archivo (imagen o video) cambia de forma significativa el tiempo que tarda en comprimirse.</p>
+        <div class="quote rv d3">¿Influye el tipo de archivo digital, imagen o video, en el tiempo que tarda en comprimirse?</div>
+      </div>
+      <div>
+        <div class="hyp">
+          <div class="card nul rv d2"><small>Hipótesis nula · H₀</small><h3>No hay diferencia</h3><p>El tiempo promedio de compresión de imágenes y videos es el mismo. Cualquier diferencia observada se debe al azar.</p></div>
+          <div class="card alt rv d3"><small>Hipótesis de investigación · Hᵢ</small><h3>Sí hay diferencia</h3><p>El tipo de archivo influye de manera significativa en el tiempo de compresión, por la estructura y el volumen de sus datos.</p></div>
+        </div>
+        <div class="card rv d4" style="margin-top:18px">
+          <h3>Variables del experimento</h3>
+          <p style="font-size:.95rem;color:var(--ink-2)"><b>Independiente:</b> tipo de archivo (imagen / video).<br><b>Dependiente:</b> tiempo de compresión, en segundos.<br><b>Controladas:</b> misma computadora, mismo software (7-Zip), mismo algoritmo (DEFLATE) y nivel máximo, archivos del mismo tamaño (~40 MB), un solo hilo de procesador.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MÉTODO -->
+<section id="metodo">
+  <div class="wrap">
+    <div class="kicker rv">Cómo lo hicimos</div>
+    <h2 class="title rv d1">Mismas reglas para todos los archivos</h2>
+    <p class="lead rv d2">Para que la comparación fuera justa, la única cosa que cambiaba entre una medición y otra era el archivo. Todo lo demás se mantuvo fijo.</p>
+    <div class="steps">
+      <div class="step rv"><div class="ico"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg></div><h3>Elegir los archivos</h3><p>Cuatro archivos de ~40 MB: una imagen sin comprimir (.bmp), una imagen comprimida (.jpg), un video sin comprimir (.avi) y un video comprimido (.mp4).</p></div>
+      <div class="step rv d1"><div class="ico"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></div><h3>Fijar el entorno</h3><p>Una sola laptop conectada a la corriente, sin otros programas abiertos, 7-Zip 26.06 con DEFLATE al nivel máximo y en un solo hilo.</p></div>
+      <div class="step rv d2"><div class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M9 2h6"/></svg></div><h3>Medir 80 veces</h3><p>Un script de PowerShell comprimió cada archivo 20 veces y registró el tiempo con un cronómetro de alta precisión, sin intervención humana.</p></div>
+      <div class="step rv d3"><div class="ico"><svg viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M7 15l4-5 4 3 5-7"/></svg></div><h3>Analizar con estadística</h3><p>Promedios, desviación estándar, detección de valores atípicos y prueba t de Welch para decidir si la diferencia es real o producto del azar.</p></div>
+    </div>
+    <div class="files">
+      <div class="file img rv"><span class="ext">.bmp</span><b>Imagen sin comprimir</b><p>39.2 MB · se reduce a 81 % con ZIP</p></div>
+      <div class="file img rv d1"><span class="ext">.jpg</span><b>Imagen comprimida</b><p>40.5 MB · se reduce a 98.6 %</p></div>
+      <div class="file vid rv d2"><span class="ext">.avi</span><b>Video sin comprimir</b><p>40.0 MB · se reduce a 37 %</p></div>
+      <div class="file vid rv d3"><span class="ext">.mp4</span><b>Video H.264</b><p>40.4 MB · se reduce a 99.99 %</p></div>
+    </div>
+    <div class="spec rv d2">
+      <div><small>Procesador</small><b>Intel Core i5-13420H</b></div>
+      <div><small>Memoria</small><b>16 GB RAM · SSD</b></div>
+      <div><small>Sistema</small><b>Windows 11 25H2</b></div>
+      <div><small>Software</small><b>7-Zip 26.06 · DEFLATE -mx=9</b></div>
+      <div><small>Fecha</small><b>14 de noviembre de 2026</b></div>
+    </div>
+  </div>
+</section>
+
+<!-- RESULTADOS -->
+<section id="resultados">
+  <div class="wrap">
+    <div class="kicker rv">Resultados</div>
+    <h2 class="title rv d1">Los videos tardaron más… pero no todos los videos</h2>
+    <p class="lead rv d2">En promedio, comprimir un video tomó <b>21.3 s</b> y una imagen <b>9.5 s</b>. Esa diferencia es estadísticamente sólida. Pero al mirar archivo por archivo apareció la sorpresa: el video .mp4 fue el más rápido de los cuatro.</p>
+
+    <div class="tbl-wrap rv d2">
+    <table class="res">
+      <thead><tr><th>Archivo</th><th>Tipo</th><th>Promedio (s)</th><th>Desv. estándar (s)</th><th>Variación (CV)</th><th>Mínimo (s)</th><th>Máximo (s)</th><th>Velocidad</th></tr></thead>
+      <tbody>
+        <tr><td>.bmp</td><td><span class="pill img">Imagen</span></td><td>10.0727</td><td>0.1023</td><td>1.02 %</td><td>9.9977</td><td>10.4822</td><td>3.89 MB/s</td></tr>
+        <tr><td>.jpg</td><td><span class="pill img">Imagen</span></td><td>8.9793</td><td>0.0611</td><td>0.68 %</td><td>8.8660</td><td>9.0953</td><td>4.51 MB/s</td></tr>
+        <tr><td>.avi</td><td><span class="pill vid">Video</span></td><td>34.1394</td><td>0.0740</td><td>0.22 %</td><td>34.0233</td><td>34.2791</td><td>1.17 MB/s</td></tr>
+        <tr><td>.mp4</td><td><span class="pill vid">Video</span></td><td>8.4275</td><td>0.0765</td><td>0.91 %</td><td>8.3152</td><td>8.6879</td><td>4.79 MB/s</td></tr>
+      </tbody>
+    </table>
+    </div>
+
+    <div class="chart-card rv" id="c1">
+      <h3>Gráfica 1 · Tiempo promedio de compresión por archivo</h3>
+      <p class="sub">Las líneas negras sobre cada barra muestran la desviación estándar (casi invisible: las mediciones fueron muy consistentes). Pasa el cursor sobre una barra para ver el detalle.</p>
+      <div class="legend"><span><i style="background:#2a78d6"></i>Imagen</span><span><i style="background:#eb6834"></i>Video</span><span><i style="background:#16213A;width:14px;height:2px;vertical-align:3px"></i>± desviación estándar</span><span><i style="border-top:2px dashed #2a78d6;height:0;width:16px;vertical-align:3px"></i>media imagen 9.53 s</span><span><i style="border-top:2px dashed #eb6834;height:0;width:16px;vertical-align:3px"></i>media video 21.28 s</span></div>
+      <svg id="svg1" viewBox="0 0 900 380" role="img" aria-label="Gráfica de barras del tiempo promedio de compresión por archivo"></svg>
+      <p class="cap"><b>Observación.</b> El .avi tardó cuatro veces más que el .mp4, a pesar de que ambos son video y del mismo tamaño. Entre las imágenes, el .bmp tardó 12 % más que el .jpg.</p>
+    </div>
+
+    <div class="chart-card rv" id="c2">
+      <h3>Gráfica 2 · ¿Qué tan estables fueron las 20 repeticiones?</h3>
+      <p class="sub">Cada línea muestra cuánto se alejó cada intento del promedio de su archivo, en porcentaje. Todo se mantuvo dentro de ±4 %.</p>
+      <div class="legend"><span><i style="background:#2a78d6"></i>.bmp</span><span><i style="background:#1baf7a"></i>.jpg</span><span><i style="background:#eb6834"></i>.avi</span><span><i style="background:#eda100"></i>.mp4</span></div>
+      <svg id="svg2" viewBox="0 0 900 360" role="img" aria-label="Gráfica de líneas de la desviación porcentual por intento"></svg>
+      <p class="cap"><b>Observación.</b> Solo dos intentos se salieron más de 3 % (el 5.º del .bmp y el 19.º del .mp4), probablemente por tareas en segundo plano del sistema. Se conservaron en el análisis y no cambian ninguna conclusión. El .mp4 mostró un aumento gradual de 1.8 % a lo largo de las repeticiones, compatible con el calentamiento del procesador.</p>
+    </div>
+
+    <div class="chart-card rv" id="c3">
+      <h3>Gráfica 3 · La clave: cuánto se puede comprimir el archivo</h3>
+      <p class="sub">Eje horizontal: tamaño final como porcentaje del original (menos es más compresible). Eje vertical: tiempo. Los cuatro archivos se ordenan casi en línea recta.</p>
+      <div class="legend"><span><i style="background:#2a78d6"></i>Imagen</span><span><i style="background:#eb6834"></i>Video</span></div>
+      <svg id="svg3" viewBox="0 0 900 360" role="img" aria-label="Gráfica de dispersión del tiempo contra el porcentaje de compresión"></svg>
+      <p class="cap"><b>Observación.</b> Correlación r = −0.97: cuanto más logra reducirse un archivo, más tarda el algoritmo en hacerlo. Lo que ordena los tiempos no es "imagen contra video", sino si el archivo ya venía comprimido.</p>
+    </div>
+
+    <div class="finding rv">
+      <div class="big">8.43 s<small>el más rápido: .mp4</small></div>
+      <div>
+        <h3>¿Por qué un video ganó la carrera?</h3>
+        <p>El algoritmo DEFLATE funciona buscando secuencias que se repiten dentro del archivo. Un video sin comprimir (.avi) está lleno de repeticiones: encuentra miles de coincidencias y, al nivel máximo, las examina todas para elegir la mejor. Eso toma tiempo. Un .mp4 o un .jpg ya pasaron por un compresor: sus datos parecen ruido, casi no hay repeticiones que evaluar, y el algoritmo termina rápido, aunque apenas logre reducir el tamaño.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HIPÓTESIS -->
+<section id="hipotesis">
+  <div class="wrap">
+    <div class="kicker rv">Comprobación de la hipótesis</div>
+    <h2 class="title rv d1">¿La diferencia es real o fue suerte?</h2>
+    <p class="lead rv d2">Para responderlo usamos la prueba t de Welch, que compara los promedios de dos grupos tomando en cuenta su variabilidad. El resultado es un valor p: la probabilidad de ver una diferencia así de grande si en realidad no existiera.</p>
+    <div class="verdict rv d2">
+      <div>
+        <div class="card">
+          <h3>Imagen vs. video, cara a cara</h3>
+          <p style="font-size:.95rem;color:var(--ink-2)">40 mediciones de imagen con promedio de <b>9.53 s</b> frente a 40 mediciones de video con promedio de <b>21.28 s</b>. La prueba dio <b>t = −5.71</b> con <b>39 grados de libertad</b> y <b>p = 0.0000013</b>. Es decir, hay un 0.00013 % de probabilidad de obtener esta diferencia por azar. Como p es mucho menor que 0.05, se rechaza la hipótesis nula.</p>
+          <div class="meter">
+            <div class="bar-p"><i></i><b style="left:0.03%"></b></div>
+            <small><span>p = 0.0000013 ← nuestro resultado</span><span>umbral 0.05</span><span>1</span></small>
+          </div>
+        </div>
+        <div class="card" style="margin-top:18px">
+          <h3>El matiz que importa</h3>
+          <p style="font-size:.95rem;color:var(--ink-2)">La hipótesis es verdadera, pero no por la razón que esperábamos. La diferencia entre categorías la explica casi por completo el .avi. Si el video de la muestra hubiera sido solo el .mp4, el video habría resultado <em>más rápido</em> que la imagen. El volumen de datos quedó descartado como causa, porque los cuatro archivos medían lo mismo. Lo decisivo fue el grado de compresión previa.</p>
+        </div>
+      </div>
+      <div class="stamp">
+        <div class="check"><svg viewBox="0 0 24 24"><path d="M4 12.5l5 5L20 6.5"/></svg></div>
+        <div class="v">HIPÓTESIS VERDADERA</div>
+        <p style="margin:8px auto 0;font-size:.95rem;color:var(--ink-2)">El tipo de archivo sí influye de manera significativa en el tiempo de compresión.</p>
+        <div class="f"><span>t de Welch = <b>−5.706</b></span><span>gl = <b>39.1</b></span><span>p = <b>1.31 × 10⁻⁶</b></span><span>α = <b>0.05</b></span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONCLUSIONES -->
+<section id="conclusiones">
+  <div class="wrap">
+    <div class="kicker rv">Conclusiones</div>
+    <h2 class="title rv d1">Lo que aprendimos y para qué sirve</h2>
+    <div class="concl">
+      <div class="card rv"><div class="ico"><svg viewBox="0 0 24 24"><path d="M9 3h6M10 3v6l-5 9a2 2 0 002 3h10a2 2 0 002-3l-5-9V3"/></svg></div><div><h3>La diferencia existe y es medible</h3><p>Con 80 mediciones estables (variación menor a 1.1 %), el video tardó en promedio más del doble que la imagen, y la estadística confirma que no fue casualidad.</p></div></div>
+      <div class="card g rv d1"><div class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></div><div><h3>Pero la categoría engaña</h3><p>Lo que realmente predice el tiempo no es si el archivo es imagen o video, sino si ya está comprimido. El .mp4 fue el más rápido y el .avi el más lento, con 4 veces de diferencia.</p></div></div>
+      <div class="card rv d2"><div class="ico"><svg viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M7 14l4-4 4 4 5-6"/></svg></div><div><h3>Más compresible = más lento</h3><p>Entre los cuatro archivos, la correlación entre cuánto se reduce el tamaño y cuánto tarda fue de −0.97. DEFLATE trabaja más cuando encuentra más patrones repetidos.</p></div></div>
+      <div class="card g rv d3"><div class="ico"><svg viewBox="0 0 24 24"><path d="M12 2a7 7 0 017 7c0 3-2 5-3 6v3H8v-3c-1-1-3-3-3-6a7 7 0 017-7zM9 21h6"/></svg></div><div><h3>Una pregunta nueva</h3><p>Hipótesis emergente: el tiempo de compresión con DEFLATE aumenta conforme disminuye la compresión previa del archivo, sin importar si es imagen o video. Queda pendiente probarla con más archivos.</p></div></div>
+    </div>
+    <div class="tips rv d2">
+      <h3>Decisiones prácticas que habilita este conocimiento</h3>
+      <ul>
+        <li><i>1</i><span>Al respaldar o enviar fotos .jpg y videos .mp4, conviene empaquetarlos en modo "almacenar" (sin compresión): se ahorra tiempo de procesador y el tamaño final es prácticamente el mismo.</span></li>
+        <li><i>2</i><span>Los archivos sin compresión previa (.bmp, .avi, .wav) son los que sí justifican el costo de comprimir: ahí es donde el ZIP ahorra espacio de verdad.</span></li>
+        <li><i>3</i><span>Para estimar cuánto tardará un respaldo, no basta con sumar tamaños: hay que considerar el formato de los archivos.</span></li>
+        <li><i>4</i><span>En ingeniería, medir antes de decidir evita conclusiones equivocadas, como suponer que "todo video es costoso de comprimir".</span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- EQUIPO -->
+<section id="equipo">
+  <div class="wrap">
+    <div class="kicker rv">Equipo de investigación</div>
+    <h2 class="title rv d1">Estudiantes de Ingeniería en Tecnologías Computacionales</h2>
+    <p class="lead rv d2">Tercer semestre · Facultad de Ingeniería en Electrónica y Comunicaciones · Universidad Veracruzana, Región Poza Rica-Tuxpan. Experiencia educativa: Investigación Aplicada a Tecnologías Computacionales.</p>
+    <div class="team">
+      <div class="member rv"><div class="avatar">JG</div><h3>Julio César Gómez Cuellar</h3><div class="mat">S25032182</div><span class="role">Diseño experimental y análisis</span></div>
+      <div class="member rv d1"><div class="avatar">MC</div><h3>Miriam Naomi Cruz Cruz</h3><div class="mat">S25007104</div><span class="role">Documentación y redacción</span></div>
+      <div class="member rv d2"><div class="avatar">AR</div><h3>Alejandro de Jesús Ramírez López</h3><div class="mat">zS25007111</div><span class="role">Ejecución de mediciones</span></div>
+    </div>
+    <div class="facil rv d3">
+      <div class="avatar">AC</div>
+      <div><small>Facilitador</small><b>Dr. Alfredo Cristóbal Salas</b><br><span>Investigador Nacional Nivel 2 (SNI) · Profesor de tiempo completo, FIEC</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- DESCARGAS -->
+<section id="descargas">
+  <div class="wrap">
+    <div class="kicker rv">Descargas</div>
+    <h2 class="title rv d1">Datos abiertos y verificables</h2>
+    <p class="lead rv d2">Todo lo que aquí se muestra sale de las 80 mediciones originales. Puedes descargar el informe completo y las hojas de captura con los datos crudos para revisarlos, graficarlos o repetir el experimento.</p>
+    <div class="dl">
+      <a class="rv d2" href="descargas/Practica3_Analisis_Compresion_UV.pdf" target="_blank" rel="noopener"><div class="ic pdf">PDF</div><div><b>Informe de investigación completo</b><span>Resumen, bitácora, metodología, análisis estadístico, gráficas, comprobación de hipótesis y conclusiones.</span></div><span class="arrow">→</span></a>
+      <a class="rv d3" href="descargas/Captura_Compresion_DATOS_REALES.xlsx" target="_blank" rel="noopener"><div class="ic xls">XLSX</div><div><b>Hojas de captura con datos reales</b><span>Las 80 mediciones, la prueba piloto, la ficha del entorno y las fórmulas estadísticas en Excel.</span></div><span class="arrow">→</span></a>
+    </div>
+    <div class="dl" data-repo hidden style="grid-template-columns:1fr;margin-top:20px">
+      <a href="#" data-repo-link target="_blank" rel="noopener"><div class="ic" style="background:#24292f"><svg width="30" height="30" viewBox="0 0 24 24" fill="#fff" aria-hidden="true"><path d="M12 .5C5.7.5.5 5.7.5 12c0 5.1 3.3 9.4 7.9 10.9.6.1.8-.3.8-.6v-2c-3.2.7-3.9-1.5-3.9-1.5-.5-1.3-1.3-1.7-1.3-1.7-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.7-1.6-2.6-.3-5.3-1.3-5.3-5.7 0-1.3.5-2.3 1.2-3.1-.1-.3-.5-1.5.1-3.1 0 0 1-.3 3.3 1.2a11.4 11.4 0 016 0C17.3 4.6 18.3 5 18.3 5c.6 1.6.2 2.8.1 3.1.8.8 1.2 1.8 1.2 3.1 0 4.4-2.7 5.4-5.3 5.7.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6 4.6-1.5 7.9-5.8 7.9-10.9C23.5 5.7 18.3.5 12 .5z"/></svg></div><div><b>Repositorio en GitHub</b><span>Datos crudos en CSV, scripts de medición y de análisis en Python, gráficas, archivos de prueba y guía para repetir el experimento.</span></div><span class="arrow">→</span></a>
+    </div>
+    <p class="ia rv d3"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg> El análisis estadístico y la redacción se apoyaron en inteligencia artificial (Claude, Anthropic), bajo revisión y responsabilidad del equipo.</p>
+  </div>
+</section>
+
+<footer>
+  <div class="pleca"></div>
+  <div class="wrap">
+    <div>
+      <h4>Universidad Veracruzana</h4>
+      <p>Facultad de Ingeniería en Electrónica y Comunicaciones<br>Región Poza Rica-Tuxpan<br>Prolongación Av. Venustiano Carranza s/n, Col. Revolución, C.P. 93390, Poza Rica de Hidalgo, Veracruz</p>
+      <p class="lema">"Lis de Veracruz: Arte, Ciencia, Luz"</p>
+    </div>
+    <div>
+      <h4>Proyecto</h4>
+      <ul><li>Análisis experimental del tiempo de compresión en archivos digitales de imagen y video</li><li style="margin-top:8px">Investigación Aplicada a Tecnologías Computacionales</li><li>Periodo agosto 2026 – enero 2027</li></ul>
+    </div>
+    <div>
+      <h4>Secciones</h4>
+      <ul><li><a href="#problema" style="color:#fff;text-decoration:none">El problema</a></li><li><a href="#metodo" style="color:#fff;text-decoration:none">Cómo lo hicimos</a></li><li><a href="#resultados" style="color:#fff;text-decoration:none">Resultados</a></li><li><a href="#hipotesis" style="color:#fff;text-decoration:none">Hipótesis</a></li><li><a href="#conclusiones" style="color:#fff;text-decoration:none">Conclusiones</a></li><li><a href="#descargas" style="color:#fff;text-decoration:none">Descargas</a></li></ul>
+    </div>
+  </div>
+  <p class="copy wrap">© 2026 Universidad Veracruzana · Trabajo académico estudiantil · Datos experimentales obtenidos el 14 de noviembre de 2026</p>
+</footer>
+
+<script>
+const DATA = {"meta": {".bmp": [41070054, 33375335, 81.26], ".jpg": [42447426, 41850338, 98.59], ".avi": [41828314, 15481542, 37.01], ".mp4": [42359278, 42354794, 99.99]}, ".bmp": [10.0563, 10.0614, 10.0633, 10.0018, 10.4822, 10.0456, 10.1208, 10.0414, 10.0626, 10.084, 10.0453, 10.06, 10.0129, 10.0593, 9.9977, 10.0171, 10.0043, 10.0382, 10.0836, 10.116], ".jpg": [8.866, 8.9256, 8.9516, 9.0046, 9.0121, 9.0181, 8.9753, 8.9728, 8.9804, 8.9057, 9.0263, 8.9512, 9.0953, 9.0085, 9.0278, 8.9311, 9.0077, 8.8798, 9.091, 8.9554], ".avi": [34.1487, 34.0729, 34.126, 34.2274, 34.2031, 34.1558, 34.2791, 34.1244, 34.115, 34.1096, 34.0233, 34.1479, 34.0849, 34.0337, 34.2657, 34.262, 34.1045, 34.135, 34.0865, 34.0818], ".mp4": [8.4198, 8.3152, 8.4128, 8.3664, 8.4259, 8.3374, 8.4232, 8.4013, 8.3878, 8.4, 8.4194, 8.3851, 8.4506, 8.4284, 8.5062, 8.498, 8.4613, 8.3976, 8.6879, 8.4265]};
+const STATS = {".bmp": {"n": 20, "mean": 10.07269, "sd": 0.10226539209846437, "cv": 1.0152738950415863, "ea": 0.02286723684778362, "er": 0.2270221445093974, "min": 9.9977, "max": 10.4822, "imin": 15, "imax": 5, "med": 10.0578, "out": [[5, 10.4822]], "ic": 0.047861676780263145, "slope": -0.003758646616541356, "slope_p": 0.35710902607338824}, ".jpg": {"n": 20, "mean": 8.979315, "sd": 0.06109669019375427, "cv": 0.6804159358899233, "ea": 0.013661635247347934, "er": 0.15214562856240074, "min": 8.866, "max": 9.0953, "imin": 1, "imax": 13, "med": 8.97785, "out": [], "ic": 0.02859413119525163, "slope": 0.0026675939849623957, "slope_p": 0.27150799367256395}, ".avi": {"n": 20, "mean": 34.139365, "sd": 0.07398919035557644, "cv": 0.21672690852796014, "ea": 0.016544485923524074, "er": 0.04846161000218978, "min": 34.0233, "max": 34.2791, "imin": 11, "imax": 7, "med": 34.1252, "out": [], "ic": 0.03462800700575555, "slope": -0.002081578947368306, "slope_p": 0.48309584153211554}, ".mp4": {"n": 20, "mean": 8.42754, "sd": 0.0764973436071303, "cv": 0.9077066808004506, "ea": 0.017105326040370232, "er": 0.20296938419005106, "min": 8.3152, "max": 8.6879, "imin": 2, "imax": 19, "med": 8.419599999999999, "out": [[2, 8.3152], [15, 8.5062], [16, 8.498], [19, 8.6879]], "ic": 0.03580185886099173, "slope": 0.007575488721804487, "slope_p": 0.006639672439779095}};
+const FMT = ['.bmp','.jpg','.avi','.mp4'];
+const COL = {'.bmp':'#2a78d6','.jpg':'#1baf7a','.avi':'#eb6834','.mp4':'#eda100'};
+const CAT = {'.bmp':'#2a78d6','.jpg':'#2a78d6','.avi':'#eb6834','.mp4':'#eb6834'};
+const NS='http://www.w3.org/2000/svg';
+const el=(t,a={},p)=>{const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);if(p)p.appendChild(e);return e};
+const tip=document.getElementById('tip');
+function showTip(html,x,y){tip.innerHTML=html;tip.style.left=x+'px';tip.style.top=y+'px';tip.classList.add('on')}
+function hideTip(){tip.classList.remove('on')}
+function hover(node,html){node.addEventListener('mousemove',e=>showTip(html,e.clientX,e.clientY-10));node.addEventListener('mouseleave',hideTip);node.style.cursor='crosshair'}
+
+/* ---------- enlace al repositorio (solo en GitHub Pages) ---------- */
+(()=>{const h=location.hostname;if(!h.endsWith('.github.io'))return;const u=h.split('.')[0],seg=location.pathname.split('/').filter(Boolean)[0];
+const url=seg&&!seg.includes('.')?`https://github.com/${u}/${seg}`:`https://github.com/${u}/${h}`;
+document.querySelectorAll('[data-repo]').forEach(n=>{n.hidden=false;if(n.tagName==='A')n.href=url});document.querySelectorAll('[data-repo-link]').forEach(a=>a.href=url)})();
+
+/* ---------- progress + nav ---------- */
+const prog=document.getElementById('progress'),nav=document.getElementById('nav');
+addEventListener('scroll',()=>{const h=document.documentElement;prog.style.width=(h.scrollTop/(h.scrollHeight-h.clientHeight)*100)+'%';nav.classList.toggle('scrolled',h.scrollTop>20)},{passive:true});
+document.getElementById('burger').onclick=()=>document.getElementById('links').classList.toggle('open');
+document.querySelectorAll('#links a').forEach(a=>a.onclick=()=>document.getElementById('links').classList.remove('open'));
+const navIO=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){document.querySelectorAll('#links a').forEach(a=>a.classList.toggle('active',a.getAttribute('href')==='#'+e.target.id))}}),{rootMargin:'-40% 0px -55% 0px'});
+document.querySelectorAll('section[id]').forEach(s=>navIO.observe(s));
+
+/* ---------- reveal ---------- */
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}}),{threshold:.15});
+document.querySelectorAll('.rv,.chart-card,.verdict').forEach(n=>io.observe(n));
+/* counters */
+document.querySelectorAll('[data-count]').forEach(n=>{const target=+n.dataset.count;new IntersectionObserver((es,o)=>{if(es[0].isIntersecting){const t0=performance.now();const tick=t=>{const k=Math.min(1,(t-t0)/1400);n.textContent=Math.round(target*(1-Math.pow(1-k,3)));if(k<1)requestAnimationFrame(tick)};requestAnimationFrame(tick);o.disconnect()}}).observe(n)});
+/* race */
+setTimeout(()=>document.querySelectorAll('.lane .fill').forEach(f=>f.style.width=f.dataset.w+'%'),400);
+
+/* ---------- hero network canvas ---------- */
+(()=>{const c=document.getElementById('net'),x=c.getContext('2d');let w,h,pts=[];const N=70;
+function rs(){w=c.width=c.offsetWidth;h=c.height=c.offsetHeight}rs();addEventListener('resize',rs);
+for(let i=0;i<N;i++)pts.push({x:Math.random()*2000,y:Math.random()*1200,vx:(Math.random()-.5)*.35,vy:(Math.random()-.5)*.35});
+function frame(){x.clearRect(0,0,w,h);for(const p of pts){p.x+=p.vx;p.y+=p.vy;if(p.x<0||p.x>w)p.vx*=-1;if(p.y<0||p.y>h)p.vy*=-1}
+for(let i=0;i<N;i++){for(let j=i+1;j<N;j++){const a=pts[i],b=pts[j],d=Math.hypot(a.x-b.x,a.y-b.y);if(d<140){x.strokeStyle=`rgba(123,226,161,${(1-d/140)*.35})`;x.lineWidth=1;x.beginPath();x.moveTo(a.x,a.y);x.lineTo(b.x,b.y);x.stroke()}}}
+for(const p of pts){x.fillStyle='rgba(255,255,255,.7)';x.beginPath();x.arc(p.x,p.y,1.8,0,7);x.fill()}
+if(!matchMedia('(prefers-reduced-motion: reduce)').matches)requestAnimationFrame(frame)}frame();})();
+
+/* ---------- Chart 1: bars ---------- */
+(()=>{const s=document.getElementById('svg1'),W=900,H=380,m={t:30,r:30,b:50,l:70},iw=W-m.l-m.r,ih=H-m.t-m.b;
+const max=40,y=v=>m.t+ih-(v/max)*ih,bw=iw/FMT.length*.52;
+const g=el('g',{class:'grid'},s);for(let v=0;v<=max;v+=10){el('line',{x1:m.l,x2:W-m.r,y1:y(v),y2:y(v)},g);el('text',{x:m.l-10,y:y(v)+4,'text-anchor':'end',class:'lbl',style:'fill:#7A869A;font-size:11px'},s).textContent=v+' s'}
+el('line',{x1:m.l,x2:W-m.r,y1:y(0),y2:y(0),stroke:'#DCE3EE'},s);
+FMT.forEach((f,i)=>{const st=STATS[f],cx=m.l+iw/FMT.length*(i+.5),x0=cx-bw/2,top=y(st.mean);
+const r=el('rect',{x:x0,y:top,width:bw,height:y(0)-top,rx:4,fill:CAT[f],class:'bar',style:`transform-box:fill-box;transition-delay:${i*.15}s`},s);
+el('line',{x1:cx,x2:cx,y1:y(st.mean-st.sd),y2:y(st.mean+st.sd),stroke:'#16213A','stroke-width':1.5},s);
+el('line',{x1:cx-7,x2:cx+7,y1:y(st.mean+st.sd),y2:y(st.mean+st.sd),stroke:'#16213A','stroke-width':1.5},s);
+el('line',{x1:cx-7,x2:cx+7,y1:y(st.mean-st.sd),y2:y(st.mean-st.sd),stroke:'#16213A','stroke-width':1.5},s);
+el('text',{x:cx,y:top-12,'text-anchor':'middle',class:'lbl',style:'font-weight:600'},s).textContent=st.mean.toFixed(2)+' s';
+el('text',{x:cx,y:H-m.b+22,'text-anchor':'middle',class:'lbl',style:'font-size:14px;font-weight:600'},s).textContent=f;
+el('text',{x:cx,y:H-m.b+40,'text-anchor':'middle',class:'lbl',style:'fill:#7A869A;font-size:11px'},s).textContent=i<2?'imagen':'video';
+hover(r,`<b>${f}</b> · media ${st.mean.toFixed(4)} s<br>SD ${st.sd.toFixed(4)} s · CV ${st.cv.toFixed(2)} %<br>mín ${st.min} · máx ${st.max}`)});
+/* category means */
+[['Imagen',9.526,'#2a78d6'],['Video',21.28,'#eb6834']].forEach(([n,v,c])=>{el('line',{x1:m.l,x2:W-m.r,y1:y(v),y2:y(v),stroke:c,'stroke-dasharray':'6 5','stroke-width':1.5,opacity:.7},s)});
+})();
+
+/* ---------- Chart 2: stability lines ---------- */
+(()=>{const s=document.getElementById('svg2'),W=900,H=360,m={t:24,r:30,b:44,l:60},iw=W-m.l-m.r,ih=H-m.t-m.b;
+const ymin=-3,ymax=5,y=v=>m.t+ih-((v-ymin)/(ymax-ymin))*ih,x=i=>m.l+(i-1)/19*iw;
+const g=el('g',{class:'grid'},s);for(let v=ymin;v<=ymax;v++){el('line',{x1:m.l,x2:W-m.r,y1:y(v),y2:y(v),stroke:v===0?'#9AA7B8':'#EEF2F7','stroke-width':v===0?1.5:1},g);el('text',{x:m.l-10,y:y(v)+4,'text-anchor':'end',style:'font-family:var(--ff-mono);font-size:11px;fill:#7A869A'},s).textContent=(v>0?'+':'')+v+' %'}
+for(let i=1;i<=20;i++){el('text',{x:x(i),y:H-m.b+20,'text-anchor':'middle',style:'font-family:var(--ff-mono);font-size:11px;fill:#7A869A'},s).textContent=i}
+el('text',{x:W/2,y:H-6,'text-anchor':'middle',style:'font-family:var(--ff-head);font-size:11px;fill:#4A5568;font-weight:600'},s).textContent='Número de intento';
+FMT.forEach((f,k)=>{const arr=DATA[f],mean=STATS[f].mean,pts=arr.map((v,i)=>[x(i+1),y((v-mean)/mean*100)]);
+const p=el('path',{d:'M'+pts.map(p=>p.join(',')).join('L'),fill:'none',stroke:COL[f],'stroke-width':2.2,class:'line-path','stroke-linejoin':'round',style:`transition-delay:${k*.2}s`},s);
+pts.forEach((pt,i)=>{const d=((arr[i]-mean)/mean*100);const c=el('circle',{cx:pt[0],cy:pt[1],r:Math.abs(d)>3?6:4,fill:'#fff',stroke:COL[f],'stroke-width':2,class:'pt',style:`transition-delay:${1.2+i*.04}s`},s);hover(c,`<b>${f}</b> intento ${i+1}<br>${arr[i].toFixed(4)} s · ${d>0?'+':''}${d.toFixed(2)} %`)});
+});
+})();
+
+/* ---------- Chart 3: scatter ---------- */
+(()=>{const s=document.getElementById('svg3'),W=900,H=360,m={t:24,r:40,b:54,l:60},iw=W-m.l-m.r,ih=H-m.t-m.b;
+const xs=v=>m.l+(v-30)/(106-30)*iw,ys=v=>m.t+ih-(v/40)*ih;
+const g=el('g',{class:'grid'},s);for(let v=0;v<=40;v+=10){el('line',{x1:m.l,x2:W-m.r,y1:ys(v),y2:ys(v)},g);el('text',{x:m.l-10,y:ys(v)+4,'text-anchor':'end',style:'font-family:var(--ff-mono);font-size:11px;fill:#7A869A'},s).textContent=v+' s'}
+for(let v=30;v<=100;v+=10){el('line',{x1:xs(v),x2:xs(v),y1:m.t,y2:m.t+ih},g);el('text',{x:xs(v),y:H-m.b+20,'text-anchor':'middle',style:'font-family:var(--ff-mono);font-size:11px;fill:#7A869A'},s).textContent=v+' %'}
+el('text',{x:W/2,y:H-8,'text-anchor':'middle',style:'font-family:var(--ff-head);font-size:11px;fill:#4A5568;font-weight:600'},s).textContent='Tamaño comprimido como % del original  (← más compresible)';
+/* regression line */
+const P=FMT.map(f=>[DATA.meta[f][2],STATS[f].mean]);const n=P.length,mx=P.reduce((a,p)=>a+p[0],0)/n,my=P.reduce((a,p)=>a+p[1],0)/n;const b=P.reduce((a,p)=>a+(p[0]-mx)*(p[1]-my),0)/P.reduce((a,p)=>a+(p[0]-mx)**2,0),a0=my-b*mx;
+el('line',{x1:xs(34),y1:ys(a0+b*34),x2:xs(103),y2:ys(a0+b*103),stroke:'#9AA7B8','stroke-dasharray':'7 6','stroke-width':1.5,class:'line-path'},s);
+el('text',{x:xs(62),y:ys(a0+b*62)-10,style:'font-family:var(--ff-mono);font-size:11px;fill:#7A869A'},s).textContent='tendencia · r = −0.97';
+FMT.forEach((f,i)=>{const r=DATA.meta[f][2],t=STATS[f].mean,c=el('circle',{cx:xs(r),cy:ys(t),r:11,fill:CAT[f],stroke:'#fff','stroke-width':3,class:'pt',style:`transition-delay:${.4+i*.2}s`},s);
+const dx=f==='.jpg'?-16:16,anchor=f==='.jpg'?'end':'start';el('text',{x:xs(r)+dx,y:ys(t)+(f==='.mp4'?24:f==='.jpg'?-22:4),'text-anchor':anchor,style:'font-family:var(--ff-mono);font-size:13px;fill:#16213A;font-weight:600',class:'pt'},s).textContent=`${f} · ${t.toFixed(1)} s`;
+hover(c,`<b>${f}</b><br>queda en ${r} % del tamaño<br>tarda ${t.toFixed(2)} s`)});
+})();
+</script>
+</body>
+</html>

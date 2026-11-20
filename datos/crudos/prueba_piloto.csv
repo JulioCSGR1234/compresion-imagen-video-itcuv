@@ -1,0 +1,5 @@
+﻿"No.","Tipo de archivo","Nombre del archivo","Formato","T1 (s)","T2 (s)","T3 (s)","Tiempo Promedio (s)","Desviacion Estandar","Tamano original (MiB)","Tamano ZIP (MiB)","Ratio (%)","Observaciones"
+"1","Imagen","imagen_sin_compresion.bmp",".bmp","10.1476","10.0787","10.1537","10.1267","0.0417","39.17","31.83","81.26",""
+"2","Imagen","imagen_comprimida.jpg",".jpg","8.9959","8.9611","9.0495","9.0022","0.0445","40.48","39.91","98.59",""
+"3","Video","video_menos_comprimido.avi",".avi","33.9499","34.2042","34.0515","34.0685","0.128","39.89","14.76","37.01",""
+"4","Video","video_comprimido_moderno.mp4",".mp4","8.3638","8.3056","8.3776","8.349","0.0382","40.4","40.39","99.99",""

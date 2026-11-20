@@ -1,0 +1,118 @@
+===============================================================================
+ PAQUETE EXPERIMENTAL
+ "Análisis experimental del tiempo de compresión en archivos digitales
+  de imagen y video"
+
+ Universidad Veracruzana — Facultad de Electrónica y Comunicaciones
+ Región Poza Rica-Tuxpan | Ingeniería en Tecnologías Computacionales
+ Experiencia educativa: Investigación Aplicada a Tecnologías Computacionales
+===============================================================================
+
+CONTENIDO
+-------------------------------------------------------------------------------
+  muestra\
+      imagen_sin_compresion.bmp        39.17 MiB   (41,070,054 bytes)
+      imagen_comprimida.jpg            40.48 MiB   (42,447,426 bytes)
+      video_menos_comprimido.avi       39.89 MiB   (41,828,314 bytes)
+      video_comprimido_moderno.mp4     40.40 MiB   (42,359,278 bytes)
+
+  Medir-Compresion.ps1                 Script de medición para Windows
+  medir_compresion.sh                  Script de medición para Linux (respaldo)
+  Plantilla_Captura_Compresion.xlsx    Hoja de captura, Tabla 4 y gráficas
+  LEEME.txt                            Este archivo
+
+
+SOBRE LOS ARCHIVOS DE LA MUESTRA
+-------------------------------------------------------------------------------
+Los cuatro archivos son 100 % sintéticos: se generaron por procedimiento
+(degradados, relieve, formas geométricas, grano y el conjunto de Mandelbrot).
+No proceden de ninguna fuente de terceros, así que no hay problemas de
+derechos de autor y el experimento es reproducible.
+
+Los cuatro pesan prácticamente lo mismo (39–41 MiB, una diferencia máxima
+del 3.3 %). Esto es deliberado: si un archivo pesara 5 MB y otro 300 MB, la
+diferencia de tiempo mediría el volumen, no la estructura. Al igualar el
+tamaño, la variable que queda libre es la estructura interna del formato,
+que es justamente lo que plantea la hipótesis.
+
+  .bmp   mapa de bits sin compresión previa (3700 × 3700 px, 24 bits)
+  .jpg   JPEG con compresión nativa con pérdida (4740 × 4740 px, calidad 98)
+  .avi   video sin compresión, rawvideo yuv420p (640 × 360, 30 fps, 121 cuadros)
+  .mp4   video con compresión moderna H.264 (1920 × 1080, 30 fps, 30 s)
+
+
+REQUISITO PREVIO
+-------------------------------------------------------------------------------
+  Windows : 7-Zip  →  https://www.7-zip.org/   (versión .exe de 64 bits)
+            Si no hay permisos de administrador, usa la versión portable
+            7zXXXX-extra.7z y copia 7z.exe junto al script.
+  Linux   : sudo apt install p7zip-full
+
+
+CÓMO EJECUTAR (WINDOWS)
+-------------------------------------------------------------------------------
+  1. Copia esta carpeta completa al disco SSD del equipo de prueba
+     (por ejemplo C:\pruebas_compresion). NO la dejes en una USB ni en
+     OneDrive: el tiempo de escritura contaminaría la medición.
+  2. Cierra navegadores, reproductores, Discord, Steam y cualquier
+     actualización o análisis de antivirus en curso.
+  3. Conecta el equipo a la corriente y pon el plan de energía
+     en «Alto rendimiento».
+  4. Clic derecho en la carpeta → «Abrir en Terminal» (o Shift + clic
+     derecho → «Abrir ventana de PowerShell aquí»).
+  5. Ejecuta:
+
+         powershell -ExecutionPolicy Bypass -File .\Medir-Compresion.ps1
+
+  6. Revisa la ficha del entorno que aparece en pantalla, presiona ENTER
+     y espera. Las 80 ejecuciones tardan aproximadamente 2 a 4 minutos.
+
+  Resultados en la carpeta  resultados\ :
+      tabla_captura_*.csv     se pega directo en la hoja 2 del Excel
+      medidas_largo_*.csv     datos crudos para el análisis estadístico
+      tabla4_resumen_*.csv    Tabla 4 del protocolo
+      ficha_entorno_*.txt     Ficha del Entorno de Prueba
+
+
+CONFIGURACIÓN APLICADA (variables controladas)
+-------------------------------------------------------------------------------
+  Contenedor .................. ZIP
+  Algoritmo ................... DEFLATE  (-mm=Deflate)
+  Nivel de compresión ......... Máxima   (-mx=9)
+  Hilos ....................... 1        (-mmt=1, monohilo)
+  Repeticiones ................ 20 por archivo (80 ejecuciones)
+  Calentamiento ............... 1 ejecución previa no registrada
+  Medición .................... System.Diagnostics.Stopwatch (wall-clock)
+
+Los cuatro archivos reciben exactamente los mismos parámetros. Eso es lo
+que hace válida la comparación.
+
+Si prefieren registrar el efecto de caché fría en T1 (algunos profesores lo
+piden), ejecuten con:
+
+         powershell -ExecutionPolicy Bypass -File .\Medir-Compresion.ps1 -Calentamiento $false
+
+
+QUÉ ESPERAR EN LOS RESULTADOS
+-------------------------------------------------------------------------------
+En una prueba piloto con DEFLATE nivel 9 sobre estos mismos archivos, los
+tiempos se separaron por «compresión previa», no por «imagen contra video»:
+
+  .avi (sin comprimir)   el más lento, y el que más se reduce (~38 % del original)
+  .jpg y .mp4            rápidos, y casi no se reducen (99–100 % del original)
+  .bmp                   intermedio (~86 % del original)
+
+Es decir: es probable que la media del video salga mayor que la de las
+imágenes, pero empujada casi por completo por el .avi, no porque «el video»
+sea más costoso. Conviene anticiparlo y escribirlo así en el análisis: es un
+hallazgo más interesante que el esperado, y defenderlo bien sube la
+calificación. Los números reales dependerán del equipo donde se ejecute.
+
+
+DECLARACIÓN DE USO DE IA
+-------------------------------------------------------------------------------
+El protocolo incluye una sección «Uso de Inteligencia Artificial» con matriz
+de uso y declaración de responsabilidad. Los archivos de muestra, los scripts
+de medición y la plantilla de Excel de este paquete fueron generados con
+asistencia de IA. Decláralo ahí. Las mediciones, la verificación del entorno
+y la interpretación de los resultados los hace el equipo.

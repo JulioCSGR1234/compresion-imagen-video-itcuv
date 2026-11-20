@@ -1,0 +1,23 @@
+# Archivos de la muestra (van en Releases, no en el repositorio)
+muestra/*.bmp
+muestra/*.jpg
+muestra/*.avi
+muestra/*.mp4
+scripts/medicion/muestra/
+*.zip
+
+# Resultados temporales del script de medición
+_tmp_zips/
+scripts/medicion/resultados/
+resultados/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Office y sistema
+~$*
+.DS_Store
+Thumbs.db
+desktop.ini

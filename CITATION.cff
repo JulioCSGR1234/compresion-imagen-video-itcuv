@@ -1,0 +1,28 @@
+cff-version: 1.2.0
+message: "Si usas estos datos o scripts, cita este trabajo así."
+title: "Análisis experimental del tiempo de compresión en archivos digitales de imagen y video"
+type: dataset
+authors:
+  - given-names: "Julio César"
+    family-names: "Gómez Cuellar"
+    affiliation: "Universidad Veracruzana"
+  - given-names: "Miriam Naomi"
+    family-names: "Cruz Cruz"
+    affiliation: "Universidad Veracruzana"
+  - given-names: "Alejandro de Jesús"
+    family-names: "Ramírez López"
+    affiliation: "Universidad Veracruzana"
+date-released: "2026-11-20"
+license: CC-BY-4.0
+keywords:
+  - compresión de datos
+  - DEFLATE
+  - 7-Zip
+  - imagen digital
+  - video digital
+  - análisis experimental
+abstract: >-
+  Medición experimental (80 ejecuciones) del tiempo de compresión con 7-Zip y DEFLATE
+  de cuatro archivos de imagen y video de tamaño equiparable. El video tardó en promedio
+  21.28 s y la imagen 9.53 s (t de Welch, p = 1.31e-6), pero el grado de compresión previa
+  del archivo resultó ser el factor determinante (r = -0.97).
