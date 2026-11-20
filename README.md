@@ -2,7 +2,7 @@
 
 **¿Qué tarda más en comprimirse: una imagen o un video?** Lo medimos 80 veces en condiciones controladas. La respuesta fue sí… y también no.
 
-[![Página web](https://img.shields.io/badge/Página_web-ver_resultados-28AD56?style=for-the-badge)](https://JulioCSGR1234.github.io/compresion-imagen-video-uv/)
+[![Página web](https://img.shields.io/badge/Página_web-ver_resultados-28AD56?style=for-the-badge)](https://JulioCSGR1234.github.io/compresion-imagen-video-itcuv/)
 [![Informe PDF](https://img.shields.io/badge/Informe-PDF-18529D?style=for-the-badge)](informe/Practica3_Analisis_Compresion_UV.pdf)
 [![Datos](https://img.shields.io/badge/Datos-CSV-555?style=for-the-badge)](datos/crudos/mediciones_80.csv)
 
@@ -40,7 +40,7 @@ El desglose por archivo matiza ese resultado: el video sin compresión (.avi) fu
 ## Contenido del repositorio
 
 ```
-compresion-imagen-video-uv/
+compresion-imagen-video-itcuv/
 ├── docs/                  Página web de divulgación (se publica con GitHub Pages)
 │   ├── index.html
 │   └── descargas/         PDF del informe y Excel con los datos, enlazados desde la página
