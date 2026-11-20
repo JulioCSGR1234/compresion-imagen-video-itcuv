@@ -53,6 +53,7 @@ compresion-imagen-video-itcuv/
 │   ├── medicion/          Script de medición para Windows (PowerShell) y Linux (Bash)
 │   └── analisis/          Script de análisis estadístico y gráficas (Python)
 ├── graficas/              Gráficas usadas en el informe
+├── evidencias/            Capturas de pantalla de la sesión de medición, en orden cronológico
 ├── muestra/               Huellas SHA-256 de los 4 archivos de prueba (los archivos van en el Release)
 └── documentacion/         Metodología, diccionario de datos y guía para reproducir el experimento
 ```
@@ -68,6 +69,15 @@ python scripts/analisis/analisis.py
 
 El script lee `datos/crudos/mediciones_80.csv`, recalcula todas las estadísticas del informe y vuelve a generar las gráficas. Para repetir **las mediciones** en otra computadora, sigue [documentacion/REPRODUCIR.md](documentacion/REPRODUCIR.md).
 
+## Evidencia de la medición
+
+Las 80 mediciones se tomaron la noche del 14 de noviembre de 2026 con `Medir-Compresion.ps1`. La carpeta [evidencias/](evidencias/) tiene las capturas de la sesión en orden: ficha del entorno, muestra detectada, los 20 tiempos de cada archivo y el resumen final (duración total: 1 296 s).
+
+<p align="center">
+  <img src="evidencias/01_inicio_ficha_entorno.jpeg" width="49%" alt="Inicio del script y ficha del entorno">
+  <img src="evidencias/07_resultados_finales.jpeg" width="49%" alt="Resultados finales del script">
+</p>
+
 ## Documentación
 
 - [Metodología y condiciones experimentales](documentacion/METODOLOGIA.md)
@@ -77,11 +87,11 @@ El script lee `datos/crudos/mediciones_80.csv`, recalcula todas las estadística
 
 ## Equipo
 
-| Integrante | Matrícula |
-|---|---|
-| Julio César Gómez Cuellar | S25032182 |
-| Miriam Naomi Cruz Cruz | S25007104 |
-| Alejandro de Jesús Ramírez López | zS25007111 |
+| Integrante | Matrícula | Actividades |
+|---|---|---|
+| Julio César Gómez Cuellar | S25032182 | Documentación del informe (con Miriam), repositorio en GitHub y página web de divulgación |
+| Miriam Naomi Cruz Cruz | S25007104 | Documentación y redacción del informe (con Julio) |
+| Alejandro de Jesús Ramírez López | S25007111 | Ejecución de las 80 mediciones en su equipo y ficha del entorno de prueba |
 
 **Facilitador:** Dr. Alfredo Cristóbal Salas, Facultad de Ingeniería en Electrónica y Comunicaciones, UV.
 
